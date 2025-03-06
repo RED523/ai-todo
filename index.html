@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ToDo List</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .todo-container {
+            margin-top: 20px;
+        }
+        .todo-header {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        #todo-input {
+            flex: 1;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px 0 0 4px;
+        }
+        #add-button {
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        #add-button:hover {
+            background-color: #45a049;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            padding: 10px 15px;
+            background-color: #f9f9f9;
+            border-left: 3px solid #4CAF50;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        li.completed {
+            text-decoration: line-through;
+            opacity: 0.7;
+            border-left-color: #999;
+        }
+        .delete-btn {
+            background-color: #f44336;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .delete-btn:hover {
+            background-color: #d32f2f;
+        }
+    </style>
+</head>
+<body>
+    <h1>我的待办事项</h1>
+    <div class="todo-container">
+        <div class="todo-header">
+            <input type="text" id="todo-input" placeholder="添加新的待办事项...">
+            <input type="datetime-local" id="reminder-time">
+            <button id="add-button">添加</button>
+        </div>
+        <ul id="todo-list"></ul>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
+<style>
+    #reminder-time {
+        padding: 10px;
+        font-size: 16px;
+        border: 1px solid #ddd;
+        border-radius: 0;
+    }
+    
+    .reminder-time {
+        font-size: 12px;
+        color: #666;
+        margin-top: 5px;
+    }
+</style>

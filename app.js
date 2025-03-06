@@ -72,14 +72,115 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function showNotification(text) {
+        // 创建一个弹窗提醒
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'alert-popup';
+        alertDiv.innerHTML = `
+            <div class="alert-content">
+                <h3>待办事项提醒</h3>
+                <p>${text}</p>
+                <button id="alert-close">我知道了</button>
+                <audio id="notification-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-alarm-digital-clock-beep-989.mp3" preload="auto"></audio>
+            </div>
+        `;
+        document.body.appendChild(alertDiv);
+        
+        // 获取音频元素
+        const sound = document.getElementById('notification-sound');
+        
+        // 当用户点击按钮时播放声音（这样可以绕过自动播放限制）
+        document.getElementById('alert-close').addEventListener('click', function() {
+            sound.play();
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 500);
+        });
+        
+        // 尝试直接播放声音
+        try {
+            // 创建用户交互事件来触发声音播放
+            const clickEvent = new MouseEvent('click', {
+                view: window,
+                bubbles: true,
+                cancelable: true
+            });
+            document.dispatchEvent(clickEvent);
+            
+            // 尝试直接播放
+            sound.volume = 1.0;
+            const playPromise = sound.play();
+            if (playPromise !== undefined) {
+                playPromise.catch(error => {
+                    console.log('自动播放被阻止，需要用户交互');
+                });
+            }
+        } catch (e) {
+            console.log('播放声音失败:', e);
+        }
+        
+        // 发送系统通知
         if ('Notification' in window) {
-            Notification.requestPermission().then(permission => {
-                if (permission === 'granted') {
-                    new Notification('待办事项提醒', {
-                        body: text,
-                        icon: 'https://example.com/icon.png' // 你可以添加一个图标
-                    });
-                }
+            if (Notification.permission === 'granted') {
+                new Notification('待办事项提醒', {
+                    body: text,
+                    icon: 'https://example.com/icon.png'
+                });
+            } else if (Notification.permission !== 'denied') {
+                Notification.requestPermission().then(permission => {
+                    if (permission === 'granted') {
+                        new Notification('待办事项提醒', {
+                            body: text,
+                            icon: 'https://example.com/icon.png'
+                        });
+                    }
+                });
+            }
+        }
+        
+        // 使用振动API作为额外提醒（如果设备支持）
+        if ('vibrate' in navigator) {
+            navigator.vibrate([200, 100, 200]);
+        }
+    }
+    
+    // 播放闹铃声音的函数
+    function playAlarmSound() {
+        // 使用多个备选铃声，增加成功率
+        const alarmSources = [
+            'https://assets.mixkit.co/sfx/preview/mixkit-alarm-digital-clock-beep-989.mp3',
+            'https://assets.mixkit.co/sfx/preview/mixkit-classic-alarm-995.mp3',
+            'https://assets.mixkit.co/sfx/preview/mixkit-classic-short-alarm-993.mp3'
+        ];
+        
+        // 尝试播放第一个铃声
+        tryPlaySound(alarmSources, 0);
+    }
+    
+    // 尝试依次播放铃声
+    function tryPlaySound(sources, index) {
+        if (index >= sources.length) {
+            console.log('所有铃声播放尝试均失败');
+            return;
+        }
+        
+        const alarm = new Audio(sources[index]);
+        alarm.volume = 0.8; // 设置音量
+        
+        // 预加载
+        alarm.preload = 'auto';
+        
+        // 错误处理
+        alarm.onerror = function() {
+            console.log(`铃声 ${index + 1} 加载失败，尝试下一个`);
+            tryPlaySound(sources, index + 1);
+        };
+        
+        // 尝试播放
+        const playPromise = alarm.play();
+        if (playPromise !== undefined) {
+            playPromise.catch(error => {
+                console.log(`铃声 ${index + 1} 播放被阻止，尝试下一个`);
+                tryPlaySound(sources, index + 1);
             });
         }
     }
